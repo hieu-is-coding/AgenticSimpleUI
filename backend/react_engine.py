@@ -46,14 +46,17 @@ def step(env, action):
             attempts += 1
     return "Timeout", 0, True, {}
 
-def stream_webthink(question):
+def stream_webthink(question, system_prompt=None, example_prompt=None):
     def format_sse(msg_type, content):
         return f"data: {json.dumps({'type': msg_type, 'content': content})}\n\n"
 
     try:
         env = wikienv.WikiEnv()
         env.reset()
-        prompt = webthink_prompt + f"Question: {question}\n"
+        
+        inst = system_prompt if system_prompt and system_prompt.strip() else instruction
+        ex = example_prompt if example_prompt and example_prompt.strip() else webthink_examples
+        prompt = inst + "\n" + ex + f"\nQuestion: {question}\n"
         
         yield format_sse("info", f"Question: {question}")
         

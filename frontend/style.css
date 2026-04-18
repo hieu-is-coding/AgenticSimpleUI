@@ -33,19 +33,95 @@ body {
     overflow: hidden;
 }
 
-.app-container {
+.layout {
     width: 100%;
-    max-width: 900px;
+    max-width: 1600px;
     height: 100vh;
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    margin: 0 auto;
+}
+
+.sidebar {
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.sidebar h2 {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.sidebar h3 {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.app-container {
+    flex: 1;
     display: flex;
     flex-direction: column;
     position: relative;
-}
-
-.glass-header {
     background: var(--card-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.template-card {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.template-card:hover {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: var(--accent-color);
+}
+
+.template-card h4 {
+    font-size: 0.9rem;
+    color: var(--accent-color);
+    margin-bottom: 4px;
+}
+
+.template-card p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.history-item {
+    padding: 10px;
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.history-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+.glass-header {
+    background: transparent;
     border-bottom: 1px solid var(--border-color);
     padding: 1rem 2rem;
     z-index: 10;
@@ -106,13 +182,24 @@ main {
     scroll-behavior: smooth;
 }
 
-main::-webkit-scrollbar {
-    width: 6px;
+/* Global scrollbar styling for a dark theme */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
 }
 
-main::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.4);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
 }
 
 .glass-panel {
@@ -203,9 +290,7 @@ main::-webkit-scrollbar-thumb {
 }
 
 .glass-footer {
-    background: var(--card-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: transparent;
     border-top: 1px solid var(--border-color);
     padding: 1.5rem 2rem;
     z-index: 10;
