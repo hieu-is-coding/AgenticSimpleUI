@@ -1,0 +1,11 @@
+fastapi==0.104.1
+uvicorn==0.24.0.post1
+openai==0.28.0
+python-dotenv==1.0.0
+datasets==2.14.7
+requests==2.31.0
+gymnasium==0.28.1
+numpy==1.26.4
+beautifulsoup4==4.12.3
+pyyaml==6.0.1
+pandas==2.1.4

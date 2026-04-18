@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgenticSimpleUI - ReAct Agent</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+    <div class="app-container">
+        <header class="glass-header">
+            <div class="header-top">
+                <div class="logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#3B82F6"/>
+                        <path d="M2 17L12 22L22 17M2 12L12 17L22 12" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <h1>ReAct Agent UI</h1>
+                </div>
+                <button id="refresh-chat-btn" class="refresh-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>
+                    Refresh Chat
+                </button>
+            </div>
+            <p class="subtitle">Ask any question and watch the agent reason via Wikipedia search.</p>
+        </header>
+
+        <main id="chat-container">
+            <div id="chat-history">
+                <div class="message system-message">
+                    <p>Welcome! Ask a complicated question that requires searching Wikipedia and connecting facts (HotPotQA style).</p>
+                    <p>Example: "What year was the director of the movie 'Inception' born?"</p>
+                </div>
+            </div>
+            <div id="current-agent-process" class="hidden">
+                <div class="process-card glass-panel">
+                    <h3>Current Reasoning Trace</h3>
+                    <div id="process-steps"></div>
+                    <div class="loading-indicator" id="loading-indicator">
+                        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                        <span id="loading-text">Agent is thinking...</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="glass-footer">
+            <form id="chat-form">
+                <input type="text" id="question-input" placeholder="Ask a question..." required autocomplete="off">
+                <button type="submit" id="submit-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+            </form>
+        </footer>
+    </div>
+    <script src="app.js?v=3"></script>
+</body>
+</html>
