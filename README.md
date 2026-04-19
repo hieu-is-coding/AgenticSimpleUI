@@ -2,9 +2,8 @@
 
 A simple, local, web-based User Interface to test and visualize the reasoning process of the ReAct (Reasoning and Acting) framework (from the original `hotpotqa.ipynb`).
 
-## Architecture
-- **Backend (`backend/`)**: Built with FastAPI. It encapsulates the simulated Wikipedia environment (`WikiEnv`), integrates with OpenAI's API, and streams the real-time Thoughts, Actions, and Observations to the client using Server-Sent Events (SSE).
-- **Frontend (`frontend/`)**: Built with Vanilla HTML, CSS, and JS for a sleek, responsive design. It connects to the streaming endpoint to dynamically render the agent's step-by-step process.
+## Feature
+
 
 ## Prerequisites
 1. Ensure your `OPENAI_API_KEY` is loaded securely (by default, it will source from `.env`).

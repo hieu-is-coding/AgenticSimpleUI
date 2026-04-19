@@ -1,0 +1,23 @@
+[
+    {
+        "id": "direct-answer",
+        "name": "Direct Answer",
+        "description": "No tools, zero-shot answer.",
+        "system_prompt": "Answer the question as concisely as possible directly without any reasoning steps. Do not use search or any tools. Just output the final answer.",
+        "example_prompt": ""
+    },
+    {
+        "id": "detailed-explainer",
+        "name": "Detailed Explainer",
+        "description": "Forces a very detailed reasoning trace before the final answer.",
+        "system_prompt": "Solve a question answering task with interleaving Thought, Action, Observation steps. You must provide a highly detailed step-by-step explainer.",
+        "example_prompt": ""
+    },
+    {
+        "id": "new_1776617713354",
+        "name": "Test",
+        "description": "test",
+        "system_prompt": "hi",
+        "example_prompt": "alo"
+    }
+]

@@ -5,7 +5,8 @@ from pydantic import BaseModel
 from typing import Optional
 import os
 import os
-from backend.react_engine import stream_webthink, instruction, webthink_examples
+from backend.react_engine import stream_webthink
+from backend.prompt_templates import instruction, webthink_examples
 
 app = FastAPI()
 
@@ -30,10 +31,42 @@ async def defaults_endpoint():
     """
     Returns the default instruction and webthink_examples.
     """
+    from backend import prompt_templates
     return {
-        "system_prompt": instruction,
-        "example_prompt": webthink_examples
+        "system_prompt": prompt_templates.instruction,
+        "example_prompt": prompt_templates.webthink_examples
     }
+
+@app.get("/api/templates")
+async def templates_get_endpoint():
+    from backend import prompt_templates
+    return prompt_templates.ui_templates
+
+@app.post("/api/templates")
+async def templates_post_endpoint(templates: list[dict]):
+    from backend import prompt_templates
+    prompt_templates.save_ui_templates(templates)
+    return {"status": "success"}
+
+import json
+
+@app.get("/api/history")
+async def history_get_endpoint():
+    history_path = os.path.join(os.path.dirname(__file__), "chat_history.json")
+    if os.path.exists(history_path):
+        with open(history_path, "r", encoding="utf-8") as f:
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
+                return []
+    return []
+
+@app.post("/api/history")
+async def history_post_endpoint(history: list[dict]):
+    history_path = os.path.join(os.path.dirname(__file__), "chat_history.json")
+    with open(history_path, "w", encoding="utf-8") as f:
+        json.dump(history, f, indent=4)
+    return {"status": "success"}
 
 class NoCacheStaticFiles(StaticFiles):
     def is_not_modified(self, response_headers, request_headers) -> bool:

@@ -7,12 +7,80 @@
     <title>AgenticSimpleUI - ReAct Agent</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=4">
+    <style>
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: #1e293b;
+            border: 1px solid var(--border-color, #334155);
+            border-radius: 12px;
+            padding: 2rem;
+            width: 600px;
+            max-width: 90vw;
+            color: #b9b9b9;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-secondary {
+            background: #475569;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #334155;
+        }
+    </style>
 </head>
 
 <body>
     <div class="layout">
         <aside class="sidebar glass-panel" id="left-sidebar">
-            <h2>Activity History</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2 style="margin-bottom: 0;">Activity History</h2>
+                <button id="delete-all-history-btn" class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.2rem 0.5rem; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer;" title="Delete all history">Delete All</button>
+            </div>
             <div id="history-list"></div>
         </aside>
 
@@ -99,25 +167,59 @@
                 </div>
                 <hr style="border: none; border-top: 1px solid var(--border-color); margin-bottom: 1rem;">
 
-                <h3>Prompt Templates</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3>Prompt Templates</h3>
+                    <button id="add-template-btn" class="btn btn-secondary"
+                        style="font-size: 0.75rem; padding: 0.2rem 0.5rem;">+ Add Template</button>
+                </div>
                 <div id="templates-list" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 10px;">
-                    <div class="template-card"
-                        data-system="Answer the question as concisely as possible directly without any reasoning steps. Do not use search or any tools. Just output the final answer."
-                        data-example="">
-                        <h4>Direct Answer</h4>
-                        <p>No tools, zero-shot answer.</p>
-                    </div>
-                    <div class="template-card"
-                        data-system="Solve a question answering task with interleaving Thought, Action, Observation steps. You must provide a highly detailed step-by-step explainer."
-                        data-example="">
-                        <h4>Detailed Explainer</h4>
-                        <p>Forces a very detailed reasoning trace before the final answer.</p>
-                    </div>
+                    <!-- Dynamically rendered -->
                 </div>
             </div>
         </aside>
     </div>
-    <script src="app.js?v=4"></script>
+    <!-- Template Modal -->
+    <div class="modal-overlay" id="template-modal">
+        <div class="modal-content" style="position: relative;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color, #334155);">
+                <h2 id="template-modal-title"
+                    style="margin: 0; color: #4d6eff; text-shadow: 0 0 5px rgba(110, 110, 110, 0.2);">Edit Template</h2>
+                <button id="close-template-btn"
+                    style="background: transparent; border: none; font-size: 1.5rem; color: #b2b2b2; cursor: pointer; line-height: 1; padding: 0;">&times;</button>
+            </div>
+            <input type="hidden" id="modal-template-id">
+            <div style="margin-bottom: 1rem;">
+                <label
+                    style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 600;">Name</label>
+                <input type="text" id="modal-template-name"
+                    style="width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; color: #f8fafc; border-radius: 8px; padding: 0.5rem; font-family: inherit; font-size: 0.9rem; outline: none;">
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <label
+                    style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 600;">Description</label>
+                <input type="text" id="modal-template-desc"
+                    style="width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; color: #f8fafc; border-radius: 8px; padding: 0.5rem; font-family: inherit; font-size: 0.9rem; outline: none;">
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 600;">System
+                    Prompt</label>
+                <textarea id="modal-template-system"
+                    style="width: 100%; min-height: 80px; background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; color: #f8fafc; border-radius: 8px; padding: 0.5rem; font-family: inherit; font-size: 0.9rem; resize: vertical; outline: none;"></textarea>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 600;">Example
+                    Prompt</label>
+                <textarea id="modal-template-example"
+                    style="width: 100%; min-height: 120px; background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; color: #f8fafc; border-radius: 8px; padding: 0.5rem; font-family: inherit; font-size: 0.9rem; resize: vertical; outline: none;"></textarea>
+            </div>
+            <div class="modal-actions" style="justify-content: space-between;">
+                <button class="btn btn-secondary" id="delete-template-btn" style="background: #ef4444;">Delete</button>
+                <button class="btn btn-primary" id="save-template-btn">Save</button>
+            </div>
+        </div>
+    </div>
+    <script src="app.js?v=10"></script>
 </body>
 
 </html>
