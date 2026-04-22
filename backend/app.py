@@ -52,7 +52,7 @@ import json
 
 @app.get("/api/history")
 async def history_get_endpoint():
-    history_path = os.path.join(os.path.dirname(__file__), "chat_history.json")
+    history_path = os.path.join(os.path.dirname(__file__), "prompts/chat_history.json")
     if os.path.exists(history_path):
         with open(history_path, "r", encoding="utf-8") as f:
             try:
@@ -63,14 +63,14 @@ async def history_get_endpoint():
 
 @app.post("/api/history")
 async def history_post_endpoint(history: list[dict]):
-    history_path = os.path.join(os.path.dirname(__file__), "chat_history.json")
+    history_path = os.path.join(os.path.dirname(__file__), "prompts/chat_history.json")
     with open(history_path, "w", encoding="utf-8") as f:
         json.dump(history, f, indent=4)
     return {"status": "success"}
 
 @app.get("/api/questions")
 async def questions_get_endpoint():
-    questions_path = os.path.join(os.path.dirname(__file__), "question_set.json")
+    questions_path = os.path.join(os.path.dirname(__file__), "prompts/question_set.json")
     if os.path.exists(questions_path):
         with open(questions_path, "r", encoding="utf-8") as f:
             try:
@@ -81,7 +81,7 @@ async def questions_get_endpoint():
 
 @app.post("/api/questions")
 async def questions_post_endpoint(questions: list[dict]):
-    questions_path = os.path.join(os.path.dirname(__file__), "question_set.json")
+    questions_path = os.path.join(os.path.dirname(__file__), "prompts/question_set.json")
     with open(questions_path, "w", encoding="utf-8") as f:
         json.dump(questions, f, indent=4)
     return {"status": "success"}

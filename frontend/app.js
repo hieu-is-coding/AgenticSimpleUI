@@ -44,6 +44,19 @@ document.addEventListener('DOMContentLoaded', () => {
         gap: 14
     };
 
+    // ── Utilities ──
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
     // Expose variables for debugging "deeply"
     window.AgenticUI = {
         getConfig: () => UI_CONFIG,
@@ -303,6 +316,61 @@ document.addEventListener('DOMContentLoaded', () => {
     examplePreviewBtn.addEventListener('click', () => openPromptPanel('example'));
     promptPanelDone.addEventListener('click', closePromptPanel);
 
+    // Auto-save on prompt panel input
+    promptPanelTextarea.addEventListener('input', () => {
+        if (!activePromptField) return;
+        // Sync to hidden textarea
+        const ta = activePromptField === 'system' ? modalTemplateSystem : modalTemplateExample;
+        ta.value = promptPanelTextarea.value;
+        // Update preview button text
+        updatePreviewBtn(activePromptField);
+        // Trigger debounced save
+        debouncedSaveTemplates();
+    });
+
+    // Auto-save on metadata input
+    modalTemplateName.addEventListener('input', () => debouncedSaveTemplates());
+    modalTemplateDesc.addEventListener('input', () => debouncedSaveTemplates());
+
+    const templateSaveStatus = document.getElementById('template-save-status');
+
+    const debouncedSaveTemplates = debounce(async () => {
+        const id = modalTemplateId.value;
+        if (!id) return;
+
+        const index = currentTemplates.findIndex(t => t.id === id);
+        const newTpl = {
+            id: id,
+            name: modalTemplateName.value,
+            description: modalTemplateDesc.value,
+            system_prompt: modalTemplateSystem.value,
+            example_prompt: modalTemplateExample.value
+        };
+
+        let newTemplates = [...currentTemplates];
+        if (index >= 0) {
+            newTemplates[index] = newTpl;
+        } else {
+            newTemplates.push(newTpl);
+        }
+
+        templateSaveStatus.textContent = 'Saving...';
+        templateSaveStatus.style.opacity = '1';
+        templateSaveStatus.style.color = '#64748b';
+        
+        await saveTemplatesToServer(newTemplates, false);
+        
+        setTimeout(() => {
+            if (templateSaveStatus.textContent === 'Saved') return; // already updated?
+            templateSaveStatus.textContent = 'Saved';
+            setTimeout(() => {
+                if (templateSaveStatus.textContent === 'Saved') {
+                    templateSaveStatus.style.opacity = '0';
+                }
+            }, 2000);
+        }, 200);
+    }, 1000);
+
     // ── Template modal open ───────────────────────────────────
     function openTemplateModal(tpl = null) {
         // Always close the prompt panel first
@@ -369,24 +437,44 @@ document.addEventListener('DOMContentLoaded', () => {
         await saveTemplatesToServer(newTemplates);
     });
 
-    async function saveTemplatesToServer(newTemplates) {
+    async function saveTemplatesToServer(newTemplates, closeModal = true) {
         try {
-            saveTemplateBtn.textContent = 'Saving...';
-            saveTemplateBtn.disabled = true;
-            await fetch('/api/templates', {
+            if (closeModal) {
+                saveTemplateBtn.textContent = 'Saving...';
+                saveTemplateBtn.disabled = true;
+            }
+            
+            const response = await fetch('/api/templates', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newTemplates)
             });
+
+            if (!response.ok) throw new Error('Failed to save');
+
             currentTemplates = newTemplates;
             renderTemplates();
-            templateModal.classList.remove('active');
+            
+            if (closeModal) {
+                templateModal.classList.remove('active');
+            } else {
+                if (templateSaveStatus) {
+                    templateSaveStatus.textContent = 'Saved';
+                }
+            }
         } catch(e) {
             console.error('Failed to save templates', e);
-            alert('Failed to save templates');
+            if (closeModal) {
+                alert('Failed to save templates');
+            } else if (templateSaveStatus) {
+                templateSaveStatus.textContent = 'Save failed';
+                templateSaveStatus.style.color = '#ef4444';
+            }
         } finally {
-            saveTemplateBtn.textContent = 'Save';
-            saveTemplateBtn.disabled = false;
+            if (closeModal) {
+                saveTemplateBtn.textContent = 'Save';
+                saveTemplateBtn.disabled = false;
+            }
         }
     }
 

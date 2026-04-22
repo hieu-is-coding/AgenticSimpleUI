@@ -2,8 +2,8 @@ import os
 import json
 
 base_dir = os.path.dirname(__file__)
-prompt_file = os.path.abspath(os.path.join(base_dir, 'prompts_naive.json'))
-custom_prompt_file = os.path.abspath(os.path.join(base_dir, 'custom_prompts.json'))
+prompt_file = os.path.abspath(os.path.join(base_dir, 'prompts/prompts_naive.json'))
+custom_prompt_file = os.path.abspath(os.path.join(base_dir, 'prompts/custom_prompts.json'))
 
 with open(prompt_file, 'r') as f:
     prompt_dict = json.load(f)
