@@ -56,6 +56,142 @@ document.addEventListener('DOMContentLoaded', () => {
     let stepCounters = { thought: 0, action: 0, observation: 0 };
     let activityHistory = [];
     let currentTemplates = [];
+    let currentQuestions = [];
+
+    // Question Set Modal elements
+    const questionSetBtn = document.getElementById('question-set-btn');
+    const questionSetModal = document.getElementById('question-set-modal');
+    const closeQuestionSetBtn = document.getElementById('close-question-set-btn');
+    const questionsListContainer = document.getElementById('questions-list-container');
+    const newQuestionTextInput = document.getElementById('new-question-text');
+    const addQuestionBtn = document.getElementById('add-question-btn');
+
+    // ── Question Set Functions ──
+    function renderQuestionsList() {
+        questionsListContainer.innerHTML = '';
+        if (currentQuestions.length === 0) {
+            questionsListContainer.innerHTML = '<p style="color: #64748b; text-align: center; margin-top: 1rem;">No questions in set yet.</p>';
+            return;
+        }
+
+        currentQuestions.forEach((q, index) => {
+            const item = document.createElement('div');
+            item.style.background = 'rgba(30, 41, 59, 0.5)';
+            item.style.border = '1px solid #334155';
+            item.style.borderRadius = '8px';
+            item.style.padding = '0.75rem';
+            item.style.display = 'flex';
+            item.style.justifyContent = 'space-between';
+            item.style.alignItems = 'center';
+            item.style.gap = '10px';
+            item.style.cursor = 'pointer';
+            item.className = 'question-item-card';
+
+            const textSpan = document.createElement('span');
+            textSpan.textContent = q.text;
+            textSpan.style.flex = '1';
+            textSpan.style.color = '#f8fafc';
+            textSpan.style.fontSize = '0.9rem';
+
+            const actionsDiv = document.createElement('div');
+            actionsDiv.style.display = 'flex';
+            actionsDiv.style.gap = '8px';
+
+            const editBtn = document.createElement('button');
+            editBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>';
+            editBtn.style.background = 'transparent';
+            editBtn.style.border = 'none';
+            editBtn.style.color = '#94a3b8';
+            editBtn.style.cursor = 'pointer';
+            editBtn.title = "Edit question";
+            editBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const newText = prompt("Edit question:", q.text);
+                if (newText !== null && newText.trim() !== "") {
+                    currentQuestions[index].text = newText.trim();
+                    renderQuestionsList();
+                    saveQuestionsToServer();
+                }
+            });
+
+            const delBtn = document.createElement('button');
+            delBtn.innerHTML = '&times;';
+            delBtn.style.background = 'transparent';
+            delBtn.style.border = 'none';
+            delBtn.style.color = '#ef4444';
+            delBtn.style.cursor = 'pointer';
+            delBtn.style.fontSize = '1.2rem';
+            delBtn.title = "Delete question";
+            delBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (confirm("Delete this question from set?")) {
+                    currentQuestions.splice(index, 1);
+                    renderQuestionsList();
+                    saveQuestionsToServer();
+                }
+            });
+
+            item.appendChild(textSpan);
+            actionsDiv.appendChild(editBtn);
+            actionsDiv.appendChild(delBtn);
+            item.appendChild(actionsDiv);
+
+            item.addEventListener('click', () => {
+                input.value = q.text;
+                questionSetModal.classList.remove('active');
+                input.focus();
+            });
+
+            questionsListContainer.appendChild(item);
+        });
+    }
+
+    async function loadQuestions() {
+        try {
+            const res = await fetch('/api/questions');
+            currentQuestions = await res.json();
+            renderQuestionsList();
+        } catch (err) {
+            console.error("Error loading questions:", err);
+        }
+    }
+
+    async function saveQuestionsToServer() {
+        try {
+            await fetch('/api/questions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(currentQuestions)
+            });
+        } catch (err) {
+            console.error("Error saving questions:", err);
+        }
+    }
+
+    questionSetBtn.addEventListener('click', () => {
+        loadQuestions();
+        questionSetModal.classList.add('active');
+    });
+
+    closeQuestionSetBtn.addEventListener('click', () => {
+        questionSetModal.classList.remove('active');
+    });
+
+    addQuestionBtn.addEventListener('click', () => {
+        const text = newQuestionTextInput.value.trim();
+        if (text) {
+            currentQuestions.push({ text });
+            newQuestionTextInput.value = '';
+            renderQuestionsList();
+            saveQuestionsToServer();
+        }
+    });
+
+    newQuestionTextInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            addQuestionBtn.click();
+        }
+    });
 
     // Fetch default prompts placeholder
     function loadDefaults() {

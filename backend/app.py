@@ -68,6 +68,24 @@ async def history_post_endpoint(history: list[dict]):
         json.dump(history, f, indent=4)
     return {"status": "success"}
 
+@app.get("/api/questions")
+async def questions_get_endpoint():
+    questions_path = os.path.join(os.path.dirname(__file__), "question_set.json")
+    if os.path.exists(questions_path):
+        with open(questions_path, "r", encoding="utf-8") as f:
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
+                return []
+    return []
+
+@app.post("/api/questions")
+async def questions_post_endpoint(questions: list[dict]):
+    questions_path = os.path.join(os.path.dirname(__file__), "question_set.json")
+    with open(questions_path, "w", encoding="utf-8") as f:
+        json.dump(questions, f, indent=4)
+    return {"status": "success"}
+
 class NoCacheStaticFiles(StaticFiles):
     def is_not_modified(self, response_headers, request_headers) -> bool:
         return False

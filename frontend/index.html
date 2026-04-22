@@ -296,6 +296,7 @@
 
             <footer class="glass-footer">
                 <form id="chat-form">
+                    <button type="button" id="question-set-btn" title="Open Question Set">Question Set</button>
                     <input type="text" id="question-input" placeholder="Ask a question..." required autocomplete="off">
                     <button type="submit" id="submit-btn">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -427,6 +428,29 @@
 
         </div>
     </div>
+    <!-- Question Set Modal -->
+    <div class="modal-overlay" id="question-set-modal">
+        <div class="modal-wrapper">
+            <div class="modal-content" style="width: 700px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color, #334155);">
+                    <h2 style="margin: 0; color: #4d6eff;">Question Set</h2>
+                    <button id="close-question-set-btn" style="background: transparent; border: none; font-size: 1.5rem; color: #b2b2b2; cursor: pointer; line-height: 1; padding: 0;">&times;</button>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <div style="display: flex; gap: 10px; margin-bottom: 1rem;">
+                        <input type="text" id="new-question-text" placeholder="Add a new question..." style="flex: 1; background: rgba(15,23,42,0.6); border: 1px solid #334155; color: #f8fafc; border-radius: 8px; padding: 0.6rem; font-family: inherit; font-size: 0.9rem; outline: none;">
+                        <button id="add-question-btn" class="btn btn-primary">Add Question</button>
+                    </div>
+                </div>
+
+                <div id="questions-list-container" style="display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto; padding-right: 5px;">
+                    <!-- Questions will be listed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="app.js?v=13"></script>
 </body>
 
