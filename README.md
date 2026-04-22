@@ -8,7 +8,7 @@ A simple, local, web-based User Interface to test and visualize the reasoning pr
 
 ## Installation
 
-```bash
+```bash (for Windows)
 python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt 
