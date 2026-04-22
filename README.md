@@ -2,9 +2,6 @@
 
 A simple, local, web-based User Interface to test and visualize the reasoning process of the ReAct (Reasoning and Acting) framework (from the original `hotpotqa.ipynb`).
 
-## Feature
-
-
 ## Prerequisites
 1. Ensure your `OPENAI_API_KEY` is loaded securely (by default, it will source from `.env`).
 2. Have Python installed.

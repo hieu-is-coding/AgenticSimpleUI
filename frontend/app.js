@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Template Modal elements
     const templateModal = document.getElementById('template-modal');
+    const modalWrapper = document.getElementById('template-modal-wrapper');
     const modalTitle = document.getElementById('template-modal-title');
     const modalTemplateId = document.getElementById('modal-template-id');
     const modalTemplateName = document.getElementById('modal-template-name');
@@ -28,10 +29,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveTemplateBtn = document.getElementById('save-template-btn');
     const deleteTemplateBtn = document.getElementById('delete-template-btn');
     const addTemplateBtn = document.getElementById('add-template-btn');
+    // Prompt split-panel elements
+    const systemPreviewBtn = document.getElementById('system-prompt-preview-btn');
+    const examplePreviewBtn = document.getElementById('example-prompt-preview-btn');
+    const promptEditorPanel = document.getElementById('prompt-editor-panel');
+    const promptPanelTitle = document.getElementById('prompt-panel-title');
+    const promptPanelDone = document.getElementById('prompt-panel-done');
+    const promptPanelTextarea = document.getElementById('prompt-panel-textarea');
+    // ── Premium UI Configuration & State ──
+    const UI_CONFIG = {
+        modalWidth: 560,
+        panelWidth: 420,
+        animationDuration: 400,
+        gap: 14
+    };
 
+    // Expose variables for debugging "deeply"
+    window.AgenticUI = {
+        getConfig: () => UI_CONFIG,
+        getTemplates: () => currentTemplates,
+        getHistory: () => activityHistory,
+        getActiveField: () => activePromptField
+    };
+
+    let activePromptField = null; 
     let stepCounters = { thought: 0, action: 0, observation: 0 };
     let activityHistory = [];
-    
     let currentTemplates = [];
 
     // Fetch default prompts placeholder
@@ -90,7 +113,67 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     loadTemplates();
 
+    // ── Prompt preview helper ──────────────────────────────────
+    function updatePreviewBtn(field) {
+        const btn = field === 'system' ? systemPreviewBtn : examplePreviewBtn;
+        const ta  = field === 'system' ? modalTemplateSystem : modalTemplateExample;
+        const span = btn.querySelector('.preview-text');
+        const val = ta.value.trim();
+        if (val) {
+            // Show first non-empty line as preview, truncated
+            const firstLine = val.split('\n').find(l => l.trim()) || val;
+            span.textContent = firstLine.length > 80 ? firstLine.slice(0, 80) + '…' : firstLine;
+            span.classList.remove('preview-placeholder');
+        } else {
+            span.textContent = field === 'system'
+                ? 'Click to edit system prompt…'
+                : 'Click to edit example prompt…';
+            span.classList.add('preview-placeholder');
+        }
+    }
+
+    // ── Prompt split-panel open / close ───────────────────────
+    function openPromptPanel(field) {
+        // Sync panel textarea from the hidden backing textarea
+        const ta = field === 'system' ? modalTemplateSystem : modalTemplateExample;
+        promptPanelTitle.textContent = field === 'system' ? 'SYSTEM PROMPT' : 'EXAMPLE PROMPT';
+        promptPanelTextarea.value = ta.value;
+        activePromptField = field;
+
+        // Highlight active button
+        systemPreviewBtn.classList.toggle('active-prompt', field === 'system');
+        examplePreviewBtn.classList.toggle('active-prompt', field === 'example');
+
+        promptEditorPanel.classList.add('visible');
+        modalWrapper.classList.add('panel-open');
+        setTimeout(() => promptPanelTextarea.focus(), 50);
+    }
+
+    function closePromptPanel() {
+        if (!activePromptField) return;
+        // Write value back to hidden textarea and refresh preview
+        const ta = activePromptField === 'system' ? modalTemplateSystem : modalTemplateExample;
+        ta.value = promptPanelTextarea.value;
+        updatePreviewBtn(activePromptField);
+
+        systemPreviewBtn.classList.remove('active-prompt');
+        examplePreviewBtn.classList.remove('active-prompt');
+        promptEditorPanel.classList.remove('visible');
+        modalWrapper.classList.remove('panel-open');
+        activePromptField = null;
+    }
+
+    systemPreviewBtn.addEventListener('click', () => openPromptPanel('system'));
+    examplePreviewBtn.addEventListener('click', () => openPromptPanel('example'));
+    promptPanelDone.addEventListener('click', closePromptPanel);
+
+    // ── Template modal open ───────────────────────────────────
     function openTemplateModal(tpl = null) {
+        // Always close the prompt panel first
+        promptEditorPanel.classList.remove('visible');
+        modalWrapper.classList.remove('panel-open');
+        activePromptField = null;
+
         if (tpl) {
             modalTitle.textContent = "Edit Template";
             modalTemplateId.value = tpl.id;
@@ -108,6 +191,8 @@ document.addEventListener('DOMContentLoaded', () => {
             modalTemplateExample.value = "";
             deleteTemplateBtn.style.display = 'none';
         }
+        updatePreviewBtn('system');
+        updatePreviewBtn('example');
         templateModal.classList.add('active');
     }
 
@@ -116,6 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     closeTemplateBtn.addEventListener('click', () => {
+        closePromptPanel();
         templateModal.classList.remove('active');
     });
 

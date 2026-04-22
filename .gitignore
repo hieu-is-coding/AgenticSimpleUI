@@ -1,3 +1,6 @@
 __pycache__/
 .env
 venv/
+sandbox/
+backend/chat_history.json
+backend/custom_prompts.json
