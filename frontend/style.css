@@ -135,6 +135,25 @@ body {
     transform: translateX(4px);
 }
 
+.favorite-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    margin: -10px 0 -10px -10px; /* Expand hit area without shifting layout */
+    border-radius: 50%;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.2s, background 0.2s;
+}
+
+.favorite-btn:hover {
+    background: rgba(251, 191, 36, 0.1);
+    transform: scale(1.1);
+}
+
+.favorite-btn:active {
+    transform: scale(0.9);
+}
+
 .history-item {
     padding: 10px;
     background: rgba(15, 23, 42, 0.4);

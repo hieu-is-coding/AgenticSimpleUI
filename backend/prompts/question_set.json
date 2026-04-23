@@ -1,11 +1,34 @@
 [
     {
-        "text": "What year was the director of the movie 'Inception' born?"
+        "text": "What year was the director of the movie 'Inception' born?",
+        "favorite": false
     },
     {
-        "text": "What year did Guns N Roses perform a promo for a movie starring Arnold Schwarzenegger as a former New York Police detective?"
+        "text": "What year did Guns N Roses perform a promo for a movie starring Arnold Schwarzenegger as a former New York Police detective?",
+        "favorite": false
     },
     {
-        "text": "Who was born earlier, Emma Bull or Virginia Woolf?"
+        "text": "Who was born earlier, Emma Bull or Virginia Woolf?",
+        "favorite": false
+    },
+    {
+        "text": "The director of the romantic comedy 'Big Stone Gap' is based in what New York city?",
+        "favorite": true
+    },
+    {
+        "text": "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?",
+        "favorite": true
+    },
+    {
+        "text": "Brown State Fishing Lake is in a country that has a population of how many inhabitants?",
+        "favorite": true
+    },
+    {
+        "text": "Which performance act has a higher instrument to person ratio, Badly Drawn Boy or Wolf Alice?",
+        "favorite": true
+    },
+    {
+        "text": "Which dog's ancestors include Gordon and Irish Setters: the Manchester Terrier or the Scotch Collie?",
+        "favorite": true
     }
 ]

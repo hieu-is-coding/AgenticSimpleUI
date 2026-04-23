@@ -74,12 +74,48 @@ document.addEventListener('DOMContentLoaded', () => {
     // Question Set Modal elements
     const questionSetBtn = document.getElementById('question-set-btn');
     const questionSetModal = document.getElementById('question-set-modal');
+    const questionSetModalWrapper = document.getElementById('question-set-modal-wrapper');
     const closeQuestionSetBtn = document.getElementById('close-question-set-btn');
     const questionsListContainer = document.getElementById('questions-list-container');
     const newQuestionTextInput = document.getElementById('new-question-text');
     const addQuestionBtn = document.getElementById('add-question-btn');
 
+    // Question Editor Panel elements
+    const questionEditorPanel = document.getElementById('question-editor-panel');
+    const questionEditorDone = document.getElementById('question-editor-done');
+    const questionEditorTextarea = document.getElementById('question-editor-textarea');
+
+    let currentEditingQuestion = null;
+
     // ── Question Set Functions ──
+    function openQuestionEditor(q) {
+        currentEditingQuestion = q;
+        questionEditorTextarea.value = q.text;
+        
+        // Use the same animation classes as template modal
+        questionEditorPanel.classList.add('visible');
+        questionSetModalWrapper.classList.add('panel-open');
+        
+        setTimeout(() => questionEditorTextarea.focus(), 50);
+    }
+
+    function closeQuestionEditor() {
+        if (currentEditingQuestion) {
+            const newText = questionEditorTextarea.value.trim();
+            if (newText && newText !== currentEditingQuestion.text) {
+                currentEditingQuestion.text = newText;
+                renderQuestionsList();
+                saveQuestionsToServer();
+            }
+        }
+        
+        questionEditorPanel.classList.remove('visible');
+        questionSetModalWrapper.classList.remove('panel-open');
+        currentEditingQuestion = null;
+    }
+
+    questionEditorDone.addEventListener('click', closeQuestionEditor);
+
     function renderQuestionsList() {
         questionsListContainer.innerHTML = '';
         if (currentQuestions.length === 0) {
@@ -87,7 +123,14 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        currentQuestions.forEach((q, index) => {
+        // Sort questions: favorites first, then by text
+        const sortedQuestions = [...currentQuestions].sort((a, b) => {
+            if (a.favorite && !b.favorite) return -1;
+            if (!a.favorite && b.favorite) return 1;
+            return a.text.localeCompare(b.text);
+        });
+
+        sortedQuestions.forEach((q) => {
             const item = document.createElement('div');
             item.style.background = 'rgba(30, 41, 59, 0.5)';
             item.style.border = '1px solid #334155';
@@ -100,11 +143,37 @@ document.addEventListener('DOMContentLoaded', () => {
             item.style.cursor = 'pointer';
             item.className = 'question-item-card';
 
+            const leftContent = document.createElement('div');
+            leftContent.style.display = 'flex';
+            leftContent.style.alignItems = 'center';
+            leftContent.style.gap = '10px';
+            leftContent.style.flex = '1';
+
+            const starBtn = document.createElement('button');
+            starBtn.className = 'favorite-btn';
+            starBtn.innerHTML = q.favorite 
+                ? '<svg width="20" height="18" viewBox="0 0 24 24" fill="#fbbf24" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>'
+                : '<svg width="20" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
+            starBtn.style.background = 'transparent';
+            starBtn.style.border = 'none';
+            starBtn.style.cursor = 'pointer';
+            starBtn.style.color = q.favorite ? '#fbbf24' : '#94a3b8';
+            starBtn.title = q.favorite ? "Unmark favorite" : "Mark as favorite";
+
+            starBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                q.favorite = !q.favorite;
+                renderQuestionsList();
+                saveQuestionsToServer();
+            });
+
             const textSpan = document.createElement('span');
             textSpan.textContent = q.text;
-            textSpan.style.flex = '1';
             textSpan.style.color = '#f8fafc';
             textSpan.style.fontSize = '0.9rem';
+
+            leftContent.appendChild(starBtn);
+            leftContent.appendChild(textSpan);
 
             const actionsDiv = document.createElement('div');
             actionsDiv.style.display = 'flex';
@@ -119,12 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
             editBtn.title = "Edit question";
             editBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const newText = prompt("Edit question:", q.text);
-                if (newText !== null && newText.trim() !== "") {
-                    currentQuestions[index].text = newText.trim();
-                    renderQuestionsList();
-                    saveQuestionsToServer();
-                }
+                openQuestionEditor(q);
             });
 
             const delBtn = document.createElement('button');
@@ -138,13 +202,14 @@ document.addEventListener('DOMContentLoaded', () => {
             delBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 if (confirm("Delete this question from set?")) {
-                    currentQuestions.splice(index, 1);
+                    const idx = currentQuestions.indexOf(q);
+                    if (idx > -1) currentQuestions.splice(idx, 1);
                     renderQuestionsList();
                     saveQuestionsToServer();
                 }
             });
 
-            item.appendChild(textSpan);
+            item.appendChild(leftContent);
             actionsDiv.appendChild(editBtn);
             actionsDiv.appendChild(delBtn);
             item.appendChild(actionsDiv);
@@ -187,13 +252,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     closeQuestionSetBtn.addEventListener('click', () => {
+        closeQuestionEditor();
         questionSetModal.classList.remove('active');
     });
 
     addQuestionBtn.addEventListener('click', () => {
         const text = newQuestionTextInput.value.trim();
         if (text) {
-            currentQuestions.push({ text });
+            currentQuestions.push({ text, favorite: false });
             newQuestionTextInput.value = '';
             renderQuestionsList();
             saveQuestionsToServer();
