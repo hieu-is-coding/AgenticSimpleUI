@@ -1,6 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('chat-form');
     const input = document.getElementById('question-input');
+    input.addEventListener('input', () => {
+        activeGroundTruth = null;
+    });
     const submitBtn = document.getElementById('submit-btn');
     const chatHistory = document.getElementById('chat-history');
     const processContainer = document.getElementById('current-agent-process');
@@ -84,13 +87,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const questionEditorPanel = document.getElementById('question-editor-panel');
     const questionEditorDone = document.getElementById('question-editor-done');
     const questionEditorTextarea = document.getElementById('question-editor-textarea');
+    const questionEditorGt = document.getElementById('question-editor-gt');
 
     let currentEditingQuestion = null;
+    let activeGroundTruth = null;
 
     // ── Question Set Functions ──
     function openQuestionEditor(q) {
         currentEditingQuestion = q;
         questionEditorTextarea.value = q.text;
+        questionEditorGt.value = q.gt_answer || '';
         
         // Use the same animation classes as template modal
         questionEditorPanel.classList.add('visible');
@@ -102,8 +108,19 @@ document.addEventListener('DOMContentLoaded', () => {
     function closeQuestionEditor() {
         if (currentEditingQuestion) {
             const newText = questionEditorTextarea.value.trim();
+            const newGt = questionEditorGt.value.trim();
+            let changed = false;
+
             if (newText && newText !== currentEditingQuestion.text) {
                 currentEditingQuestion.text = newText;
+                changed = true;
+            }
+            if (newGt !== (currentEditingQuestion.gt_answer || '')) {
+                currentEditingQuestion.gt_answer = newGt;
+                changed = true;
+            }
+
+            if (changed) {
                 renderQuestionsList();
                 saveQuestionsToServer();
             }
@@ -175,6 +192,20 @@ document.addEventListener('DOMContentLoaded', () => {
             leftContent.appendChild(starBtn);
             leftContent.appendChild(textSpan);
 
+            if (q.gt_answer && q.gt_answer.trim()) {
+                const gtBadge = document.createElement('span');
+                gtBadge.textContent = 'GT';
+                gtBadge.style.fontSize = '0.65rem';
+                gtBadge.style.background = 'rgba(77, 110, 255, 0.2)';
+                gtBadge.style.color = '#60a5fa';
+                gtBadge.style.padding = '2px 6px';
+                gtBadge.style.borderRadius = '4px';
+                gtBadge.style.fontWeight = 'bold';
+                gtBadge.style.border = '1px solid rgba(77, 110, 255, 0.4)';
+                gtBadge.title = "Has Ground Truth: " + q.gt_answer;
+                leftContent.appendChild(gtBadge);
+            }
+
             const actionsDiv = document.createElement('div');
             actionsDiv.style.display = 'flex';
             actionsDiv.style.gap = '8px';
@@ -216,6 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             item.addEventListener('click', () => {
                 input.value = q.text;
+                activeGroundTruth = q.gt_answer || null;
                 questionSetModal.classList.remove('active');
                 input.focus();
             });
@@ -259,7 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addQuestionBtn.addEventListener('click', () => {
         const text = newQuestionTextInput.value.trim();
         if (text) {
-            currentQuestions.push({ text, favorite: false });
+            currentQuestions.push({ text, favorite: false, gt_answer: "" });
             newQuestionTextInput.value = '';
             renderQuestionsList();
             saveQuestionsToServer();
@@ -667,9 +699,20 @@ document.addEventListener('DOMContentLoaded', () => {
         chatHistory.appendChild(userMsgDiv);
         
         // Add to left sidebar history tracking
-        let currentTrace = { id: Date.now().toString(), question: question, steps: [], answer: null, error: null };
+        let currentTrace = { 
+            id: Date.now().toString(), 
+            question: question, 
+            steps: [], 
+            answer: null, 
+            error: null,
+            gt_answer: activeGroundTruth
+        };
         activityHistory.unshift(currentTrace);
         renderHistoryList();
+
+        // Clear active GT after sending so manually typed questions don't accidentally inherit it
+        // unless they are exactly the same text? No, let's just clear it.
+        activeGroundTruth = null;
 
         // Prep reasoning panel
         // Hide it briefly then reset and show
@@ -748,7 +791,18 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (!content || content.trim() === "" || content === "No specific answer returned") {
                 agentMsgDiv.innerHTML = `<strong>No Answer</strong>`;
             } else {
-                agentMsgDiv.innerHTML = `<strong>Final Answer:</strong> ${content}`;
+                agentMsgDiv.innerHTML = `<strong style="color: #a855f7;">Final Answer:</strong> ${content}`;
+            }
+
+            if (currentTrace && currentTrace.gt_answer) {
+                const gtDiv = document.createElement('div');
+                gtDiv.style.marginTop = '8px';
+                gtDiv.style.paddingTop = '8px';
+                gtDiv.style.borderTop = '1px dashed rgba(255,255,255,0.1)';
+                gtDiv.style.fontSize = '0.85rem';
+                gtDiv.style.color = '#94a3b8';
+                gtDiv.innerHTML = `<strong style="color: #60a5fa;">Ground Truth:</strong> ${currentTrace.gt_answer}`;
+                agentMsgDiv.appendChild(gtDiv);
             }
             
             // Append right above the process card but keep process card visible
@@ -812,8 +866,20 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (!trace.answer || trace.answer.trim() === "" || trace.answer === "No specific answer returned") {
                 agentMsgDiv.innerHTML = `<strong>No Answer</strong>`;
             } else {
-                agentMsgDiv.innerHTML = `<strong>Final Answer:</strong> ${trace.answer}`;
+                agentMsgDiv.innerHTML = `<strong style="color: #a855f7;">Final Answer:</strong> ${trace.answer}`;
             }
+
+            if (trace.gt_answer) {
+                const gtDiv = document.createElement('div');
+                gtDiv.style.marginTop = '8px';
+                gtDiv.style.paddingTop = '8px';
+                gtDiv.style.borderTop = '1px dashed rgba(255,255,255,0.1)';
+                gtDiv.style.fontSize = '0.85rem';
+                gtDiv.style.color = '#94a3b8';
+                gtDiv.innerHTML = `<strong style="color: #60a5fa;">Ground Truth:</strong> ${trace.gt_answer}`;
+                agentMsgDiv.appendChild(gtDiv);
+            }
+
             chatHistory.appendChild(agentMsgDiv);
             processContainer.style.opacity = '0.7';
         }

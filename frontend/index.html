@@ -443,10 +443,27 @@
                 </div>
 
                 <div style="margin-bottom: 1.5rem; flex-shrink: 0;">
-                    <div style="display: flex; gap: 10px; margin-bottom: 1rem;">
+                    <div style="display: flex; gap: 10px; margin-bottom: 0.75rem;">
                         <input type="text" id="new-question-text" placeholder="Add a new question..."
                             style="flex: 1; background: rgba(15,23,42,0.6); border: 1px solid #334155; color: #f8fafc; border-radius: 8px; padding: 0.6rem; font-family: inherit; font-size: 0.9rem; outline: none;">
                         <button id="add-question-btn" class="btn btn-primary">Add Question</button>
+                    </div>
+                    <div
+                        style="font-size: 0.75rem; color: #94a3b8; display: flex; justify-content: center; gap: 15px; align-items: center; padding: 0 4px;">
+                        <span style="display: flex; align-items: center; gap: 4px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="#fbbf24" stroke="#fbbf24"
+                                stroke-width="2">
+                                <polygon
+                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                                </polygon>
+                            </svg>
+                            Mark as favorite
+                        </span>
+                        <span style="display: flex; align-items: center; gap: 4px;">
+                            <span
+                                style="font-size: 0.6rem; background: rgba(77, 110, 255, 0.2); color: #60a5fa; padding: 1px 4px; border-radius: 3px; font-weight: bold; border: 1px solid rgba(77, 110, 255, 0.4);">GT</span>
+                            Ground Truth answer added
+                        </span>
                     </div>
                 </div>
 
@@ -462,8 +479,22 @@
                     <span class="prompt-panel-title">Edit Question</span>
                     <button class="prompt-panel-done" id="question-editor-done">Done ✓</button>
                 </div>
-                <textarea id="question-editor-textarea" placeholder="Enter question text here…"
-                    style="min-height: 300px;"></textarea>
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 1rem; overflow-y: auto;">
+                    <div>
+                        <label
+                            style="display: block; margin-bottom: 0.5rem; font-size: 0.8rem; color: #94a3b8; font-weight: 600;">QUESTION
+                            TEXT</label>
+                        <textarea id="question-editor-textarea" placeholder="Enter question text here…"
+                            style="min-height: 150px;"></textarea>
+                    </div>
+                    <div>
+                        <label
+                            style="display: block; margin-bottom: 0.5rem; font-size: 0.8rem; color: #4d6eff; font-weight: 600;">GROUND
+                            TRUTH ANSWER</label>
+                        <textarea id="question-editor-gt" placeholder="Enter expected answer for evaluation…"
+                            style="min-height: 150px;"></textarea>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

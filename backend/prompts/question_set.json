@@ -1,34 +1,47 @@
 [
     {
         "text": "What year was the director of the movie 'Inception' born?",
-        "favorite": false
+        "favorite": false,
+        "gt_answer": ""
     },
     {
         "text": "What year did Guns N Roses perform a promo for a movie starring Arnold Schwarzenegger as a former New York Police detective?",
-        "favorite": false
+        "favorite": false,
+        "gt_answer": ""
     },
     {
         "text": "Who was born earlier, Emma Bull or Virginia Woolf?",
-        "favorite": false
+        "favorite": false,
+        "gt_answer": ""
     },
     {
-        "text": "The director of the romantic comedy 'Big Stone Gap' is based in what New York city?",
-        "favorite": true
+        "text": "The director of the romantic comedy 'Big Stone Gap' is based in what of New York city?",
+        "favorite": true,
+        "gt_answer": "Greenwich Village, New York City"
     },
     {
         "text": "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?",
-        "favorite": true
+        "favorite": true,
+        "gt_answer": "Chief of Protocol"
     },
     {
-        "text": "Brown State Fishing Lake is in a country that has a population of how many inhabitants?",
-        "favorite": true
+        "text": "What football league did John Moncur belong to during his time at Ipswich Town F.C.",
+        "favorite": true,
+        "gt_answer": "Championship"
     },
     {
         "text": "Which performance act has a higher instrument to person ratio, Badly Drawn Boy or Wolf Alice?",
-        "favorite": true
+        "favorite": true,
+        "gt_answer": "Badly Drawn Boy"
     },
     {
         "text": "Which dog's ancestors include Gordon and Irish Setters: the Manchester Terrier or the Scotch Collie?",
-        "favorite": true
+        "favorite": true,
+        "gt_answer": "Scotch Collie"
+    },
+    {
+        "text": "What is the name of the range of characteristics pertaining to, and differentiating between, masculinity and femininity which Mary Karooro Okurut was appointed to in 2012 as Minister of?",
+        "favorite": true,
+        "gt_answer": "Gender and Social Issues"
     }
 ]
