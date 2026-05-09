@@ -73,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let activityHistory = [];
     let currentTemplates = [];
     let currentQuestions = [];
+    let activeTemplateId = null;
 
     // Question Set Modal elements
     const questionSetBtn = document.getElementById('question-set-btn');
@@ -82,6 +83,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const questionsListContainer = document.getElementById('questions-list-container');
     const newQuestionTextInput = document.getElementById('new-question-text');
     const addQuestionBtn = document.getElementById('add-question-btn');
+    const newQuestionFavoriteBtn = document.getElementById('new-question-favorite-btn');
+    let isNewQuestionFavorite = false;
 
     // Question Editor Panel elements
     const questionEditorPanel = document.getElementById('question-editor-panel');
@@ -106,32 +109,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function closeQuestionEditor() {
-        if (currentEditingQuestion) {
-            const newText = questionEditorTextarea.value.trim();
-            const newGt = questionEditorGt.value.trim();
-            let changed = false;
-
-            if (newText && newText !== currentEditingQuestion.text) {
-                currentEditingQuestion.text = newText;
-                changed = true;
-            }
-            if (newGt !== (currentEditingQuestion.gt_answer || '')) {
-                currentEditingQuestion.gt_answer = newGt;
-                changed = true;
-            }
-
-            if (changed) {
-                renderQuestionsList();
-                saveQuestionsToServer();
-            }
-        }
-        
         questionEditorPanel.classList.remove('visible');
         questionSetModalWrapper.classList.remove('panel-open');
         currentEditingQuestion = null;
     }
 
     questionEditorDone.addEventListener('click', closeQuestionEditor);
+
+    // ── Real-time auto-save for question editor ──
+    const debouncedSaveQuestion = debounce(() => {
+        if (!currentEditingQuestion) return;
+        const newText = questionEditorTextarea.value.trim();
+        const newGt = questionEditorGt.value.trim();
+        let changed = false;
+
+        if (newText && newText !== currentEditingQuestion.text) {
+            currentEditingQuestion.text = newText;
+            changed = true;
+        }
+        if (newGt !== (currentEditingQuestion.gt_answer || '')) {
+            currentEditingQuestion.gt_answer = newGt;
+            changed = true;
+        }
+
+        if (changed) {
+            renderQuestionsList();
+            saveQuestionsToServer();
+        }
+    }, 600);
+
+    questionEditorTextarea.addEventListener('input', debouncedSaveQuestion);
+    questionEditorGt.addEventListener('input', debouncedSaveQuestion);
 
     function renderQuestionsList() {
         questionsListContainer.innerHTML = '';
@@ -288,11 +296,27 @@ document.addEventListener('DOMContentLoaded', () => {
         questionSetModal.classList.remove('active');
     });
 
+    newQuestionFavoriteBtn.addEventListener('click', () => {
+        isNewQuestionFavorite = !isNewQuestionFavorite;
+        if (isNewQuestionFavorite) {
+            newQuestionFavoriteBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="#fbbf24" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
+            newQuestionFavoriteBtn.style.color = '#fbbf24';
+        } else {
+            newQuestionFavoriteBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
+            newQuestionFavoriteBtn.style.color = '#94a3b8';
+        }
+    });
+
     addQuestionBtn.addEventListener('click', () => {
         const text = newQuestionTextInput.value.trim();
         if (text) {
-            currentQuestions.push({ text, favorite: false, gt_answer: "" });
+            currentQuestions.push({ text, favorite: isNewQuestionFavorite, gt_answer: "" });
             newQuestionTextInput.value = '';
+            
+            isNewQuestionFavorite = false;
+            newQuestionFavoriteBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
+            newQuestionFavoriteBtn.style.color = '#94a3b8';
+
             renderQuestionsList();
             saveQuestionsToServer();
         }
@@ -335,6 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // clicking the card applies it to the textarea
             card.addEventListener('click', (e) => {
                 if(e.target.closest('.edit-tpl-btn')) return; // ignore edit button clicks
+                activeTemplateId = tpl.id;
                 systemPromptInput.value = tpl.system_prompt;
                 examplePromptInput.value = tpl.example_prompt;
             });
@@ -456,6 +481,12 @@ document.addEventListener('DOMContentLoaded', () => {
         templateSaveStatus.style.opacity = '1';
         templateSaveStatus.style.color = '#64748b';
         
+        // Auto-apply to main textareas if this is the active template
+        if (activeTemplateId === id) {
+            systemPromptInput.value = newTpl.system_prompt;
+            examplePromptInput.value = newTpl.example_prompt;
+        }
+
         await saveTemplatesToServer(newTemplates, false);
         
         setTimeout(() => {
@@ -523,6 +554,12 @@ document.addEventListener('DOMContentLoaded', () => {
             newTemplates[index] = newTpl;
         } else {
             newTemplates.push(newTpl);
+        }
+
+        // Auto-apply to main textareas if this is the active template
+        if (activeTemplateId === id) {
+            systemPromptInput.value = newTpl.system_prompt;
+            examplePromptInput.value = newTpl.example_prompt;
         }
 
         await saveTemplatesToServer(newTemplates);

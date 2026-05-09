@@ -61,13 +61,20 @@ def stream_webthink(question, system_prompt=None, example_prompt=None):
             thought_action = llm(prompt + f"Thought {i}:", stop=[f"\nObservation {i}:"])
             
             try:
-                thought, action = thought_action.strip().split(f"\nAction {i}: ")
+                if f"\nAction {i}: " in thought_action:
+                    thought, action = thought_action.strip().split(f"\nAction {i}: ", 1)
+                else:
+                    thought, action = thought_action.strip().split(f"Action {i}: ", 1)
             except Exception:
                 n_badcalls += 1
                 n_calls += 1
                 thought_parts = thought_action.strip().split('\n')
                 thought = thought_parts[0] if len(thought_parts) > 0 else ""
                 action = llm(prompt + f"Thought {i}: {thought}\nAction {i}:", stop=["\n"]).strip()
+            
+            # Clean up action: remove trailing text after the first "]"
+            if "]" in action:
+                action = action.split("]", 1)[0] + "]"
             
             yield format_sse("thought", thought)
             yield format_sse("action", action)

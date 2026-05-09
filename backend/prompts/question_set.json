@@ -16,22 +16,22 @@
     },
     {
         "text": "The director of the romantic comedy 'Big Stone Gap' is based in what of New York city?",
-        "favorite": true,
+        "favorite": false,
         "gt_answer": "Greenwich Village, New York City"
     },
     {
         "text": "What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?",
-        "favorite": true,
+        "favorite": false,
         "gt_answer": "Chief of Protocol"
     },
     {
         "text": "What football league did John Moncur belong to during his time at Ipswich Town F.C.",
-        "favorite": true,
+        "favorite": false,
         "gt_answer": "Championship"
     },
     {
         "text": "Which performance act has a higher instrument to person ratio, Badly Drawn Boy or Wolf Alice?",
-        "favorite": true,
+        "favorite": false,
         "gt_answer": "Badly Drawn Boy"
     },
     {
@@ -41,7 +41,42 @@
     },
     {
         "text": "What is the name of the range of characteristics pertaining to, and differentiating between, masculinity and femininity which Mary Karooro Okurut was appointed to in 2012 as Minister of?",
-        "favorite": true,
+        "favorite": false,
         "gt_answer": "Gender and Social Issues"
+    },
+    {
+        "text": "The football manager who recruited David Beckham managed Manchester United during what timeframe?",
+        "favorite": true,
+        "gt_answer": "from 1986 to 2013"
+    },
+    {
+        "text": "Who is the younger brother of the episode guest stars of The Hard Easy?",
+        "favorite": true,
+        "gt_answer": "Bill Murray"
+    },
+    {
+        "text": "Which performance act has a higher instrument-to-person ratio, Badly Drawn Boy or Wolf Alice?",
+        "favorite": true,
+        "gt_answer": "Badly Drawn Boy"
+    },
+    {
+        "text": "Which writer was from England, Henry Roth or Robert Erskine Childers?",
+        "favorite": false,
+        "gt_answer": "Robert Erskine Childers DSC"
+    },
+    {
+        "text": "What distinction is held by the former NBA player who was a member of the Charlotte Hornets during their 1992-93 season and was head coach for the WNBA team Charlotte Sting?",
+        "favorite": true,
+        "gt_answer": "shortest player ever to play in the National Basketball Association"
+    },
+    {
+        "text": "Which Australian city founded in 1838 contains a boarding school opened by a Prime Minister of Australia and named after a school in London of the same name?",
+        "favorite": true,
+        "gt_answer": "Marion, South Australia"
+    },
+    {
+        "text": "Which British first-generation jet-powered medium bomber was used in the South West Pacific theatre of World War II?",
+        "favorite": false,
+        "gt_answer": ""
     }
 ]
